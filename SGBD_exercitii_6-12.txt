@@ -1,0 +1,95 @@
+--------------------------------Exercitiile 6-12--------------------------------
+
+
+
+----------------Exercitiul 6----------------
+CREATE OR REPLACE PROCEDURE EXERCITIU_6 IS
+   CURSOR c_club is 
+      select nume_club from club_sportiv; 
+   TYPE c_list IS TABLE of club_sportiv.nume_club%type INDEX BY binary_integer; 
+   name_list c_list; 
+   counter number :=0; 
+BEGIN 
+   FOR n IN c_club LOOP 
+      counter := counter +1; 
+      name_list(counter) := n.nume_club; 
+      dbms_output.put_line('Client('||counter||'):'||name_list(counter)); 
+   END LOOP; 
+dbms_output.put_line('Numarul total de cluburi sportive din federatie: ');
+dbms_output.put_line(name_list.count);
+END; 
+/
+BEGIN
+EXERCITIU_6;
+END;
+/
+
+
+----------------Exercitiul 7----------------
+CREATE OR REPLACE PROCEDURE EXERCITIU_7 IS
+   c_id club_sportiv.id_club%type; 
+   c_name club_sportiv.nume_club%type; 
+   CURSOR c_club is 
+      SELECT id_club, nume_club FROM club_sportiv; 
+BEGIN 
+   OPEN c_club; 
+   LOOP 
+   FETCH c_club into c_id, c_name;
+      EXIT WHEN c_club%notfound; 
+      dbms_output.put_line(c_id || ' ' || c_name); 
+   END LOOP; 
+   CLOSE c_club; 
+END; 
+/
+
+BEGIN
+EXERCITIU_7;
+END;
+/
+
+
+select competitie.nume from ((club_sportiv join club_organizeaza_competitie on club_sportiv.id_club = club_organizeaza_competitie.club_id) 
+      join competitie on club_organizeaza_competitie.competitie_id=competitie.id_competitie) where club_sportiv.id_club = 2;
+
+
+----------------Exercitiul 8----------------
+--returneaza competitiile organizate de clubul dat ca parametru(id-ul este dat ca parametru). Daca nu exista id-ul are loc o exceptie
+CREATE OR REPLACE FUNCTION EXERCITIU_88
+(id_cerut IN club_sportiv.id_club%type)
+return competitie.nume%type
+IS
+
+   c_club club_sportiv.nume_club%type; 
+   c_comp competitie.nume%type; 
+   CURSOR c_join is 
+      select competitie.nume from ((club_sportiv join club_organizeaza_competitie on club_sportiv.id_club = club_organizeaza_competitie.club_id) 
+      join competitie on club_organizeaza_competitie.competitie_id=competitie.id_competitie) where club_sportiv.id_club = id_cerut;
+    lista_competitii competitie.nume%type;
+BEGIN 
+    lista_competitii := 'Lista este: ';
+    lista_competitii := CONCAT(lista_competitii, 'c_comp');
+    dbms_output.put_line( c_join(2) || '  s-a afisat');
+    return lista_competitii;
+   
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        dbms_output.put_line('No such customer!'); 
+    WHEN OTHERS THEN
+        dbms_output.put_line('Eroare 2!'); 
+   
+ 
+END; 
+/
+
+BEGIN
+dbms_output.put_line( EXERCITIU_88(2));
+END;
+/
+
+
+
+
+
+
+
+
